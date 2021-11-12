@@ -1,6 +1,6 @@
 ﻿using System.Reflection.Emit;
-using System;
 using System.Text;
+using static ExpressParser.Utils;
 
 namespace ExpressParser.Operations;
 
@@ -15,7 +15,7 @@ internal abstract class Operation
     {
         //trim paired parentheses
         while (raw[0]=='(' && GetPair(raw, 0, '(', ')')==raw.Length-1)
-            raw = raw[1..(raw.Length-1)];
+            raw = raw.Slice(1, raw.Length-2);
         // should ingore unary minus and everything in parentheses
         // when searching operations, so remove them
         string pattern = GetPattern(raw);
@@ -28,15 +28,16 @@ internal abstract class Operation
         foreach (var pred in preds) {
             int index = pattern.IndexOfAny(pred);
             if (index > -1) return new SimpleOperation(
-                Parse(raw[..index], context),
-                Parse(raw[(index+1)..], context),
+                Parse(raw.Slice(0, index), context),
+                Parse(raw.Slice(index+1), context),
                 pattern[index], context
             ); 
         }
         // constant or argument
-        if (double.TryParse(raw, out double value))
+        string str = raw.GetString();
+        if (double.TryParse(str, out double value))
             return new ConstantOperation(value, context);
-        return new FieldOperation(new string(raw), context);
+        return new FieldOperation(str, context);
     }
 
     private static string GetPattern(ReadOnlySpan<char> raw)
@@ -47,31 +48,19 @@ internal abstract class Operation
         while(curIndex != -1)
         {
             pair = GetPair(raw, curIndex, '(', ')');
-            ret.Append(raw[prevIndex..curIndex])
+            ret.Append(raw.Slice(prevIndex, curIndex-prevIndex))
                .Append('#', pair-curIndex+1);
             prevIndex = pair+1;
             offset = Math.Min(raw.Length-1, prevIndex+1);
-            curIndex = raw[offset..].IndexOf('(');
+            curIndex = raw.Slice(offset).IndexOf('(');
             if(curIndex != -1) curIndex+=offset;
         }
-        ret.Append(raw[prevIndex..]);
+        ret.Append(raw.Slice(prevIndex));
         //remove unary minus
         if (ret[0] == '-') ret[0] = '#';
         for (int i = 1; i < ret.Length; i++)
             if (ret[i]=='-' && raw[i-1] != ')' && (raw[i-1]<'0' || raw[i-1]>'9'))
                 ret[i] = '#';
         return ret.ToString();
-    }
-
-    private static int GetPair(ReadOnlySpan<char> src, int at, char left, char right)
-    {
-        int level = 1;
-        while(level > 0 && at < src.Length - 1)
-        {
-            at++;
-            if(src[at] == left)  level++;
-            if(src[at] == right) level--;
-        }
-        return level == 0 ? at : -1;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ExpressParser.Operations;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -43,7 +44,7 @@ public partial class Expression
     /// <param name="raw">String to parse.</param>
     public Expression(string raw)
     {
-        rootOperation = Operation.Parse(raw, this);
+        rootOperation = Operation.Parse(raw.AsSpan(), this);
         argCount = arguments.Count;
     }
 
@@ -61,7 +62,7 @@ public partial class Expression
     /// Automaticcaly creates IL code if it is not created yet ().
     /// </summary>
     /// <returns>Value of this expression.</returns>
-    public partial double EvaluateIL(); //ignore error here, source generator will fix this during compilation
+    public partial double EvaluateIL(); //source generator will fix this during compilation
     #endregion
     #region IL creation related code
     /// <summary>
@@ -76,8 +77,9 @@ public partial class Expression
     private static Lazy<ModuleBuilder> module = new(() => assembly.Value
         .DefineDynamicModule("ExpressParserEmitModule"));
 
-    private Type type = null;
+    private TypeInfo type = null;
     private MethodInfo calling = null;
+    [SuppressMessage("CodeQuality", "IDE0052")] //source generator will use this field during compilation
     private Delegate @delegate = null;
 
     private static uint exprCounter = 0;
@@ -88,27 +90,33 @@ public partial class Expression
     public void Compile()
     {
         if (IsCompiled) return;
-        IsCompiled = true;
+        //build type
         var typeBuilder = module.Value.DefineType($"ExpressParserDyamicType{++exprCounter}");
+        //build method
         var methodBuilder = typeBuilder.DefineMethod("Eval", MethodAttributes.Public | MethodAttributes.Static);
-        var argTypes = new Type[argCount];
-        Array.Fill(argTypes, typeof(double));
-        methodBuilder.SetParameters(argTypes);
+        methodBuilder.SetParameters(GetTypes<double>(argCount));
         methodBuilder.SetReturnType(typeof(double));
         var ilGen = methodBuilder.GetILGenerator();
         rootOperation.GenerateIL(ilGen);
         ilGen.Emit(OpCodes.Ret);
-        type = typeBuilder.CreateType();
+        //create method delegate
+        type = typeBuilder.CreateTypeInfo();
         calling = type.GetMethod("Eval");
         @delegate = calling.CreateDelegate(GetRetType(argCount));
+        IsCompiled = true;
     }
     private static Assembly sysAssembly = typeof(Action).Assembly;
     private static Type GetRetType(int count)
     {
         var type = sysAssembly.GetType($"System.Func`{count+1}");
-        var argTypes = new Type[count+1];
-        Array.Fill(argTypes, typeof(double));
-        return type.MakeGenericType(argTypes);
+        return type.MakeGenericType(GetTypes<double>(count+1));
+    }
+    private static Type[] GetTypes<T>(int count)
+    {
+        var ret = new Type[count];
+        var toFill = typeof(T);
+        for (int i = 0; i < count; i++) ret[i] = toFill;
+        return ret;
     }
     #endregion
 }
