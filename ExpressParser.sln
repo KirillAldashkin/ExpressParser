@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressParser", "ExpressPar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleExample", "ConsoleExample\ConsoleExample.csproj", "{BADB306D-6E29-4374-A861-406B2DF6CF99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressCodeGen", "ExpressCodeGen\ExpressCodeGen.csproj", "{848A7A37-B167-4420-9558-C4DF1AFA6179}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressCodeGen", "ExpressCodeGen\ExpressCodeGen.csproj", "{848A7A37-B167-4420-9558-C4DF1AFA6179}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{532F5213-C99F-44F4-9E9A-0E6EE33D16ED}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
