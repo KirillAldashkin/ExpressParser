@@ -4,6 +4,14 @@
 	<ImplicitUsings>enable</ImplicitUsings>
 	<LangVersion>preview</LangVersion>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<!-- NuGet package parameters -->
+	<PackageId>ExpressParser</PackageId>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageTags>expression parsing math evaluate eval</PackageTags>
+	<PackageProjectUrl>https://github.com/KirillAldashkin/ExpressParser</PackageProjectUrl>
+	<Authors>Kirill Aldashkin</Authors>
+	<Version>1.0.0</Version>
+	<Description>Simple mathematical expression parser capable of generating IL code to speed up calculations.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.4" />
