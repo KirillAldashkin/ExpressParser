@@ -15,12 +15,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-    - name: Build library
-      run: |
-        cd ExpressParser
-        dotnet pack
-        cd ..
+    - name: Restore library
+      run: dotnet restore ExpressParser/ExpressParser.csproj
+    - name: Build library (as NuGet package)
+      run: dotnet --no-restore pack ExpressParser/ExpressParser.csproj
+    - name: Restore CLI example
+      run: dotnet restore ExpressParser/ExpressParser.csproj
     - name: Build CLI example
-      run: |
-        cd ConsoleExample
-        dotnet build
+      run: dotnet --no-restore build ExpressParser/ExpressParser.csproj
