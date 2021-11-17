@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -6,7 +6,7 @@
   </PropertyGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	<Message Text="||| Creating ExpressParser NuGet package... |||" Importance="high" />
-    <Exec Command="cd ..\ExpressParser&#xD;&#xA;dotnet pack&#xD;&#xA;cd ..\ConsoleExample" />
+    <Exec Command="cd ../ExpressParser&#xD;&#xA;dotnet pack&#xD;&#xA;cd ../ConsoleExample" />
 	<Message Text="||| Created ExpressParser NuGet package. |||" Importance="high" />
   </Target>
   <ItemGroup>
