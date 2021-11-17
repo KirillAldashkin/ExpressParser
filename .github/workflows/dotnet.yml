@@ -17,11 +17,7 @@ jobs:
         dotnet-version: 6.0.x
     - name: Prepare
       run: mkdir -p ExpressParser/bin/Debug
-    - name: Restore library
-      run: dotnet restore ExpressParser/ExpressParser.csproj
-    - name: Build library (as NuGet package)
-      run: dotnet --no-restore pack ExpressParser/ExpressParser.csproj
-    - name: Restore CLI example
-      run: dotnet restore ExpressParser/ExpressParser.csproj
-    - name: Build CLI example
-      run: dotnet --no-restore build ExpressParser/ExpressParser.csproj
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: dotnet --no-restore build
