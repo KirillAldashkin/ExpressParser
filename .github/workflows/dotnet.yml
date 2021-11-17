@@ -15,6 +15,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+    - name: Prepare
+      run: mkdir ExpressParser/bin/Debug
     - name: Restore library
       run: dotnet restore ExpressParser/ExpressParser.csproj
     - name: Build library (as NuGet package)
