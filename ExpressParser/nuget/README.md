@@ -2,7 +2,8 @@
 Simple mathematical expression parser capable of
 generating IL code to speed up calculations.
 **For more info see [GitHub repository](https://github.com/KirillAldashkin/ExpressParser)**
-#### Last update: [1.1.0] Extension operations
+#### Versions log:
+##### [1.1.0] Extension operations
 Allows you to define some operations that can be
 used in expression string like functions: `a+c*f(100,a)`
 where `f(,)` is user-defined operaion. Example:
@@ -36,4 +37,22 @@ class SqrtOperation : Operation
     public override Operation Clone(Expression newExpr) => 
         new SqrtOperation(newExpr, value.Clone());
 }
+```
+##### [1.0.0] First release
+First version of library. Features:
+* Parse string to expression
+* Set arguments of expression
+* Evaluate expression
+* Compile expression to IL code, evaluate compiled version
+
+Example:
+```CSharp
+using ExpressParser;
+
+Expression expr = new("(1+1/a)^pow");
+expr.SetArgument("a", 2);
+expr.SetArgument("pow", 4);
+expr.Evaluate(); //5.0625
+expr.Compile();
+expr.EvaluateIL(); //5.0625
 ```
