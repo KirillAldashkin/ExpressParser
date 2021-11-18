@@ -9,17 +9,23 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageTags>expression parsing math evaluate eval</PackageTags>
 	<PackageProjectUrl>https://github.com/KirillAldashkin/ExpressParser</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/KirillAldashkin/ExpressParser</RepositoryUrl>
+	<RepositoryType>GitHub</RepositoryType>
 	<Authors>Kirill Aldashkin</Authors>
-	<Version>1.0.0</Version>
+	<Version>1.1.0</Version>
 	<Description>Simple mathematical expression parser capable of generating IL code to speed up calculations.</Description>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+	  <None Include="nuget\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\ExpressCodeGen\ExpressCodeGen.csproj"
-					  OutputItemType="Analyzer"
+					  OutputItemType="Analyzer" 
 					  ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

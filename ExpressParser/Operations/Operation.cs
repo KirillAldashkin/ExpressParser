@@ -95,5 +95,11 @@ public abstract class Operation
                 ret[i] = '#';
         return ret.ToString();
     }
+
+    /// <summary>
+    /// Returns indepedment copy of this operation.
+    /// </summary>
+    /// <param name="newExpr">New context expression for clone</param>
+    /// <returns>Copy of this operation</returns>
     internal abstract protected Operation Clone(Expression newExpr);
 }
