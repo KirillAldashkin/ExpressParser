@@ -4,14 +4,33 @@ using static ExpressParser.Utils;
 
 namespace ExpressParser.Operations;
 
-internal abstract class Operation
+/// <summary>
+/// Base class for all internal operations. Also
+/// used to create extension operations.
+/// </summary>
+public abstract class Operation
 {
     protected Expression expression;
+
+    /// <summary>
+    /// Creates new operation.
+    /// </summary>
+    /// <param name="expression">The expression in which this operation is located</param>
     public Operation(Expression expression) => this.expression = expression;
+    
+    /// <summary>
+    /// Evaluates current operation.
+    /// </summary>
+    /// <returns>The result of evaluation</returns>
     public abstract double Evaluate();
+    
+    /// <summary>
+    /// Emit instructions for this operation in specified <see cref="ILGenerator"/>
+    /// </summary>
+    /// <param name="il"><see cref="ILGenerator"/> to emit instructions</param>
     public abstract void GenerateIL(ILGenerator il);
 
-    public static Operation Parse(ReadOnlySpan<char> raw, Expression context)
+    internal static Operation Parse(ReadOnlySpan<char> raw, Expression context)
     {
         //trim paired parentheses
         while (raw[0]=='(' && GetPair(raw, 0, '(', ')')==raw.Length-1)
@@ -39,7 +58,6 @@ internal abstract class Operation
             return new ConstantOperation(value, context);
         return new FieldOperation(str, context);
     }
-
     private static string GetPattern(ReadOnlySpan<char> raw)
     {
         StringBuilder ret = new();
