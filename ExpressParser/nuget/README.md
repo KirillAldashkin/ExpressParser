@@ -6,7 +6,9 @@ generating IL code to speed up calculations.
 ##### [1.1.0] Extension operations
 Allows you to define some operations that can be
 used in expression string like functions: `a+c*f(100,a)`
-where `f(,)` is user-defined operaion. Example:
+where `f(,)` is user-defined operaion. Also allows you to add expressions as extension operation in other expression.
+
+Example:
 ```CSharp
 using ExpressParser;
 using ExpressParser.Operations;
@@ -37,6 +39,23 @@ class SqrtOperation : Operation
     public override Operation Clone(Expression newExpr) => 
         new SqrtOperation(newExpr, value.Clone());
 }
+```
+```CSharp
+using ExpressParser;
+using System.Collections.Generic;
+
+Expression sum = new("3*a+c");
+sum.SetArgument("a", 2);
+sum.SetArgument("c", 4);
+sum.Evaluate(); //10
+
+Dictionary<string, ExtensionProvider> ext = new();
+ext.AddExpression("f", sum);
+
+Expression smth = new("a+f(c,5)", ext);
+smth.SetArgument("a",10000);
+smth.SetArgument("c",100);
+smth.Evaluate(); //10305
 ```
 ##### [1.0.0] First release
 First version of library. Features:
