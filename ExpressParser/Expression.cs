@@ -6,18 +6,27 @@ using System.Reflection.Emit;
 namespace ExpressParser;
 
 /// <summary>
-/// Предоставляет методы для парсинга и вычисления выражений.
+/// Delegate that creates new extension operations.
+/// </summary>
+/// <param name="context">Expression in which the operation being created is located</param>
+/// <param name="arguments">Arguments of the operation being created</param>
+/// <returns>New instance of extension operation.</returns>
+public delegate Operation ExtensionProvider(Expression context, Operation[] arguments);
+
+/// <summary>
+/// Provides methods to parse and evaluates expressions.
 /// </summary>
 public partial class Expression
 {
     private Operation rootOperation;
     private int argCount;
+    internal IReadOnlyDictionary<string, ExtensionProvider> Extensions;
+    
     #region Arguments related code
     internal Dictionary<string, double> arguments = new();
 
     /// <summary>
-    /// Список переменных, найденных в выражении.
-    /// Для установки значений используйте <see cref="SetArgument(string, double)"/>
+    /// List of arguments <see cref="SetArgument(string, double)"/>
     /// </summary>
     public IReadOnlyDictionary<string, double> Arguments => arguments;
 
@@ -42,8 +51,14 @@ public partial class Expression
     /// Creates a new expression from a raw string.
     /// </summary>
     /// <param name="raw">String to parse.</param>
-    public Expression(string raw)
+    public Expression(string raw) 
+        : this(raw, new Dictionary<string, ExtensionProvider>()) { }
+    // TODO: replace with optional parameters in next major release,
+    // because removing public Expression(string) is breaking change
+    // (at binary level)
+    public Expression(string raw, IReadOnlyDictionary<string, ExtensionProvider> extensions)
     {
+        this.Extensions = extensions;
         rootOperation = Operation.Parse(raw.AsSpan(), this);
         argCount = arguments.Count;
     }
@@ -59,7 +74,6 @@ public partial class Expression
 
     /// <summary>
     /// Evaluates this expression using dynamically created IL assembly.
-    /// Automaticcaly creates IL code if it is not created yet ().
     /// </summary>
     /// <returns>Value of this expression.</returns>
     public partial double EvaluateIL(); //source generator will fix this during compilation

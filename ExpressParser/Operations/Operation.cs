@@ -52,10 +52,24 @@ public abstract class Operation
                 pattern[index], context
             ); 
         }
-        // constant or argument
+        // constant
         string str = raw.GetString();
         if (double.TryParse(str, out double value))
             return new ConstantOperation(value, context);
+        // extension operation
+        int paramStart = raw.IndexOf('(');
+        if(paramStart != -1 && GetPair(raw, paramStart, '(', ')') == raw.Length-1)
+        {
+            var name = str.Substring(0, paramStart);
+            if(context.Extensions.ContainsKey(name))
+            {
+                var args = str.Substring(paramStart+1, str.Length-paramStart-2)
+                    .Split(',')
+                    .Select(s => Parse(s.Trim().AsSpan(), context));
+                return context.Extensions[name](context, args.ToArray());
+            }
+        }
+        // argument
         return new FieldOperation(str, context);
     }
     private static string GetPattern(ReadOnlySpan<char> raw)
