@@ -68,11 +68,12 @@ public partial class Expression : ICloneable
                        IReadOnlyDictionary<string, ExtensionProvider> extensions,
                        Delegate @delegate)
     {
-        this.arguments = new(arguments);
-        Extensions = extensions.Copy();
-        this.rootOperation = rootOperation.Clone(this);
-        IsCompiled = (@delegate != null);
-        this.@delegate = @delegate;
+        this.arguments = arguments; // don't need to clone, because arguments are immutable
+        Extensions = extensions.Copy(); // need to clone, because extensions are mutable
+        this.rootOperation = rootOperation.Clone(this); // need to clone, because operations depends on Expression context
+        IsCompiled = (@delegate != null); 
+        this.@delegate = @delegate; // don't need to clone, because @delegate are immutable
+        argCount = arguments.Count;
     }
     #region Evaluate related code
 
