@@ -68,7 +68,7 @@ public partial class Expression : ICloneable
                        IReadOnlyDictionary<string, ExtensionProvider> extensions,
                        Delegate @delegate)
     {
-        this.arguments = arguments; // don't need to clone, because arguments are immutable
+        this.arguments = new(arguments); // need to clone, because arguments are mutable
         Extensions = extensions.Copy(); // need to clone, because extensions are mutable
         this.rootOperation = rootOperation.Clone(this); // need to clone, because operations depends on Expression context
         IsCompiled = (@delegate != null); 
@@ -106,7 +106,7 @@ public partial class Expression : ICloneable
     private TypeInfo type = null;
     private MethodInfo calling = null;
     [SuppressMessage("CodeQuality", "IDE0052")] //source generator will use this field during compilation
-    private Delegate @delegate = null;
+    internal Delegate @delegate = null;
 
     private static uint exprCounter = 0;
 
