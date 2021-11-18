@@ -16,7 +16,7 @@ public delegate Operation ExtensionProvider(Expression context, Operation[] argu
 /// <summary>
 /// Provides methods to parse and evaluates expressions.
 /// </summary>
-public partial class Expression
+public partial class Expression : ICloneable
 {
     private Operation rootOperation;
     private int argCount;
@@ -58,11 +58,22 @@ public partial class Expression
     // (at binary level)
     public Expression(string raw, IReadOnlyDictionary<string, ExtensionProvider> extensions)
     {
-        this.Extensions = extensions;
+        Extensions = extensions;
         rootOperation = Operation.Parse(raw.AsSpan(), this);
         argCount = arguments.Count;
     }
 
+    private Expression(Operation rootOperation,
+                       Dictionary<string, double> arguments,
+                       IReadOnlyDictionary<string, ExtensionProvider> extensions,
+                       Delegate @delegate)
+    {
+        this.arguments = new(arguments);
+        Extensions = extensions.Copy();
+        this.rootOperation = rootOperation.Clone(this);
+        IsCompiled = (@delegate != null);
+        this.@delegate = @delegate;
+    }
     #region Evaluate related code
 
     /// <summary>
@@ -133,4 +144,5 @@ public partial class Expression
         return ret;
     }
     #endregion
+    public object Clone() => new Expression(rootOperation, arguments, Extensions, @delegate);
 }

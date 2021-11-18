@@ -4,6 +4,12 @@ namespace ExpressParser;
 
 internal static class Utils
 {
+    public static Dictionary<K,V> Copy<K,V>(this IReadOnlyDictionary<K,V> src)
+    {
+        Dictionary<K, V> ret = new(src.Count);
+        foreach (var v in src) ret.Add(v.Key, v.Value);
+        return ret;
+    }
     public static unsafe string GetString(this ReadOnlySpan<char> data)
     {
         if (data.Length == 0) return "";
