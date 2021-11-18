@@ -19,6 +19,6 @@ internal class FieldOperation : Operation
         il.Emit(OpCodes.Ldarg, index);
     }
 
-    protected internal override Operation Clone(Expression newExpr) 
-        => new FieldOperation(name, newExpr);
+    protected internal override Operation Clone(Expression newExpr) =>
+        new FieldOperation(name, newExpr);
 }

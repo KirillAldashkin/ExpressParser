@@ -11,6 +11,6 @@ internal class ConstantOperation : Operation
     public override double Evaluate() => value;
     public override void GenerateIL(ILGenerator il) => il.Emit(OpCodes.Ldc_R8, value);
 
-    protected internal override Operation Clone(Expression newExpr) 
-        => new ConstantOperation(value, newExpr);
+    protected internal override Operation Clone(Expression newExpr) => 
+        new ConstantOperation(value, newExpr);
 }
