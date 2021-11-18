@@ -95,4 +95,5 @@ public abstract class Operation
                 ret[i] = '#';
         return ret.ToString();
     }
+    internal abstract protected Operation Clone(Expression newExpr);
 }

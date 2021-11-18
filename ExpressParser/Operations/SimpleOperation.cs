@@ -38,4 +38,10 @@ internal class SimpleOperation : Operation
         if (opType == '/') il.Emit(OpCodes.Div);
         if (opType == '^') il.Emit(OpCodes.Call, pow);
     }
+
+    protected internal override Operation Clone(Expression newExpr) => new SimpleOperation(
+        left.Clone(newExpr), 
+        right.Clone(newExpr), 
+        opType, newExpr
+    );
 }

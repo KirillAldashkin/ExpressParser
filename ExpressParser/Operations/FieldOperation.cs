@@ -18,4 +18,7 @@ internal class FieldOperation : Operation
         int index = expression.Arguments.Keys.ToList().IndexOf(name);
         il.Emit(OpCodes.Ldarg, index);
     }
+
+    protected internal override Operation Clone(Expression newExpr) 
+        => new FieldOperation(name, newExpr);
 }
