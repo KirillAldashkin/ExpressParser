@@ -4,12 +4,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <ItemGroup>
+    <PackageReference Include="ExpressParser" Version="1.0.0" />
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="Restore">
 	<Message Text="||| Creating ExpressParser NuGet package... |||" Importance="high" />
     <Exec Command="cd ../ExpressParser&#xD;&#xA;dotnet pack&#xD;&#xA;cd ../ConsoleExample" />
 	<Message Text="||| Created ExpressParser NuGet package. |||" Importance="high" />
   </Target>
-  <ItemGroup>
-    <PackageReference Include="ExpressParser" Version="1.0.0" />
-  </ItemGroup>
 </Project>
