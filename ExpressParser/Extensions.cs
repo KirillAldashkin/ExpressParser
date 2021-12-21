@@ -36,9 +36,17 @@ public static class Extensions
 
         public override void GenerateIL(ILGenerator il)
         {
-            //don't need to update arguments here, because they are added to IL code
-            value.Compile();
-            foreach (var (_, arg) in arguments) arg.GenerateIL(il);
+            value.Compile(); //don't need to update arguments here, because they are added to IL code
+            il.Emit(OpCodes.Ldc_I4, value.arguments.Count);
+            il.Emit(OpCodes.Newarr, typeof(double));
+            int argIndex = 0;
+            foreach (var (_, arg) in arguments)
+            {
+                il.Emit(OpCodes.Dup);
+                il.Emit(OpCodes.Ldc_I4, argIndex++);
+                arg.GenerateIL(il);
+                il.Emit(OpCodes.Stelem_R8);
+            }
             il.Emit(OpCodes.Call, value.@delegate.Method);
         }
 

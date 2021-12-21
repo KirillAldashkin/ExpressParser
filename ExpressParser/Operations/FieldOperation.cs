@@ -16,7 +16,9 @@ internal class FieldOperation : Operation
     public override void GenerateIL(ILGenerator il)
     {
         int index = expression.Arguments.Keys.ToList().IndexOf(name);
-        il.Emit(OpCodes.Ldarg, index);
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldc_I4, index);
+        il.Emit(OpCodes.Ldelem_R8);
     }
 
     protected internal override Operation Clone(Expression newExpr) =>

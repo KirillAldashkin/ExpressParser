@@ -1,5 +1,5 @@
 ﻿using ExpressParser.Operations;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -23,10 +23,15 @@ public partial class Expression : ICloneable
     internal IReadOnlyDictionary<string, ExtensionProvider> Extensions;
     
     #region Arguments related code
-    internal Dictionary<string, double> arguments = new();
+    internal ArrayDictionary<string, double> arguments = new();
 
     /// <summary>
-    /// List of arguments <see cref="SetArgument(string, double)"/>
+    /// <para>Readonly list of arguments.</para>
+    /// <para>
+    /// <see cref="IEnumerable{T}.GetEnumerator()"/> and
+    /// <see cref="IEnumerable.GetEnumerator()"/> are not 
+    /// implemented for returned object.</para>
+    /// Use <see cref="SetArgument(string, double)"/> to set values.
     /// </summary>
     public IReadOnlyDictionary<string, double> Arguments => arguments;
 
@@ -53,9 +58,7 @@ public partial class Expression : ICloneable
     /// <param name="raw">String to parse.</param>
     public Expression(string raw) 
         : this(raw, new Dictionary<string, ExtensionProvider>()) { }
-    // TODO: replace with optional parameters in next major release,
-    // because removing public Expression(string) is breaking change
-    // (at binary level)
+    
     public Expression(string raw, IReadOnlyDictionary<string, ExtensionProvider> extensions)
     {
         Extensions = extensions;
@@ -63,16 +66,16 @@ public partial class Expression : ICloneable
         argCount = arguments.Count;
     }
 
-    private Expression(Operation rootOperation,
-                       Dictionary<string, double> arguments,
-                       IReadOnlyDictionary<string, ExtensionProvider> extensions,
-                       Delegate @delegate)
+    private unsafe Expression(Operation rootOperation,
+                              ArrayDictionary<string, double> arguments,
+                              IReadOnlyDictionary<string, ExtensionProvider> extensions,
+                              Func<double[],double> method)
     {
         this.arguments = new(arguments); // need to clone, because arguments are mutable
         Extensions = extensions.Copy(); // need to clone, because extensions are mutable
         this.rootOperation = rootOperation.Clone(this); // need to clone, because operations depends on Expression context
-        IsCompiled = (@delegate != null); 
-        this.@delegate = @delegate; // don't need to clone, because @delegate are immutable
+        this.@delegate = method; // don't need to clone, because method is immutable
+        IsCompiled = (method != null);
         argCount = arguments.Count;
     }
     #region Evaluate related code
@@ -88,7 +91,7 @@ public partial class Expression : ICloneable
     /// Evaluates this expression using dynamically created IL assembly.
     /// </summary>
     /// <returns>Value of this expression.</returns>
-    public partial double EvaluateIL(); //source generator will fix this during compilation
+    public unsafe double EvaluateIL() => @delegate(arguments.ValuesArray);
     #endregion
     #region IL creation related code
     /// <summary>
@@ -105,8 +108,7 @@ public partial class Expression : ICloneable
 
     private TypeInfo type = null;
     private MethodInfo calling = null;
-    [SuppressMessage("CodeQuality", "IDE0052")] //source generator will use this field during compilation
-    internal Delegate @delegate = null;
+    internal Func<double[],double> @delegate = null;
 
     private static uint exprCounter = 0;
 
@@ -120,7 +122,7 @@ public partial class Expression : ICloneable
         var typeBuilder = module.Value.DefineType($"ExpressParserDyamicType{++exprCounter}");
         //build method
         var methodBuilder = typeBuilder.DefineMethod("Eval", MethodAttributes.Public | MethodAttributes.Static);
-        methodBuilder.SetParameters(GetTypes<double>(argCount));
+        methodBuilder.SetParameters(new Type[] { typeof(double[]) });
         methodBuilder.SetReturnType(typeof(double));
         var ilGen = methodBuilder.GetILGenerator();
         rootOperation.GenerateIL(ilGen);
@@ -128,21 +130,8 @@ public partial class Expression : ICloneable
         //create method delegate
         type = typeBuilder.CreateTypeInfo();
         calling = type.GetMethod("Eval");
-        @delegate = calling.CreateDelegate(GetRetType(argCount));
+        @delegate = (Func<double[], double>)calling.CreateDelegate(typeof(Func<double[],double>));
         IsCompiled = true;
-    }
-    private static Assembly sysAssembly = typeof(Action).Assembly;
-    private static Type GetRetType(int count)
-    {
-        var type = sysAssembly.GetType($"System.Func`{count+1}");
-        return type.MakeGenericType(GetTypes<double>(count+1));
-    }
-    private static Type[] GetTypes<T>(int count)
-    {
-        var ret = new Type[count];
-        var toFill = typeof(T);
-        for (int i = 0; i < count; i++) ret[i] = toFill;
-        return ret;
     }
     #endregion
     public object Clone() => new Expression(rootOperation, arguments, Extensions, @delegate);
